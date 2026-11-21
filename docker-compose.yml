@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  devops-sentinel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: devops-sentinel-agent
+    ports:
+      - "8000:8000"
+    environment:
+      - SENTINEL_ENV=simulation
+      - AUTO_REMEDIATE=true
+      - AUTO_ROLLBACK=true
+      - SENTINEL_PORT=8000
+    volumes:
+      - ./manifests:/app/manifests
+    restart: unless-stopped

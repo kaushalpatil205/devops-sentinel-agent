@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devops-sentinel-agent
+  namespace: devops-system
+  labels:
+    app: devops-sentinel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: devops-sentinel
+  template:
+    metadata:
+      labels:
+        app: devops-sentinel
+    spec:
+      serviceAccountName: devops-sentinel-sa
+      containers:
+        - name: sentinel-agent
+          image: devops-sentinel:v1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          env:
+            - name: SENTINEL_ENV
+              value: "live"
+            - name: AUTO_REMEDIATE
+              value: "true"
+            - name: AUTO_ROLLBACK
+              value: "true"
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+          readinessProbe:
+            httpGet:
+              path: /api/status
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: devops-sentinel-service
+  namespace: devops-system
+spec:
+  type: ClusterIP
+  selector:
+    app: devops-sentinel
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000

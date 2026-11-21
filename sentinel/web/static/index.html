@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Sentinel - Autonomous Remediation Agent</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="navbar">
+        <div class="brand">
+            <span class="logo-icon">🛡️</span>
+            <div>
+                <h1>DevOps Sentinel</h1>
+                <p class="subtitle">Autonomous CI/CD Healing, K8s Verification & Drift Remediation Agent</p>
+            </div>
+        </div>
+        <div class="status-group">
+            <div class="badge badge-success"><span class="dot"></span> Agent Active</div>
+            <div class="badge badge-info">Mode: Simulation Sandbox</div>
+            <div class="badge badge-purple">Auto-Rollback: ENABLED</div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Top Stats Banner -->
+        <section class="stats-grid">
+            <div class="card stat-card">
+                <div class="stat-label">System Health</div>
+                <div class="stat-value text-green" id="stat-health">100%</div>
+                <div class="stat-desc">Zero unhandled crashes</div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-label">Healed Incidents</div>
+                <div class="stat-value text-blue" id="stat-incidents">0</div>
+                <div class="stat-desc">Autonomous auto-remediations</div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-label">Mean Time to Remediate (MTTR)</div>
+                <div class="stat-value text-purple" id="stat-mttr">3.8s</div>
+                <div class="stat-desc">Target SLA: &lt; 30s</div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-label">IaC Drift Status</div>
+                <div class="stat-value text-orange" id="stat-drift">Synchronized</div>
+                <div class="stat-desc">Git baseline vs Cluster live</div>
+            </div>
+        </section>
+
+        <!-- Scenario Control Panel -->
+        <section class="section">
+            <div class="section-header">
+                <h2>🧪 Autonomous Scenario Testing Suite</h2>
+                <span class="section-tag">Test any production failure scenario with 1 click</span>
+            </div>
+            <div class="scenarios-grid">
+                <div class="card scenario-card">
+                    <div class="scenario-icon">💥</div>
+                    <div class="scenario-content">
+                        <h3>1. K8s Pod OOMKilled</h3>
+                        <p>Pod terminates with exit code 137 under memory surge. Agent detects, scales memory limit, triggers rollout & verifies.</p>
+                        <button class="btn btn-primary" onclick="runScenario('oom_killed')">Trigger & Remediate</button>
+                    </div>
+                </div>
+
+                <div class="card scenario-card">
+                    <div class="scenario-icon">🔌</div>
+                    <div class="scenario-content">
+                        <h3>2. Probe Port Mismatch</h3>
+                        <p>Readiness probe targeting port 3000 throws 502 / Connection Refused. Agent aligns probe to app port 8080.</p>
+                        <button class="btn btn-primary" onclick="runScenario('probe_port_mismatch')">Trigger & Remediate</button>
+                    </div>
+                </div>
+
+                <div class="card scenario-card">
+                    <div class="scenario-icon">📦</div>
+                    <div class="scenario-content">
+                        <h3>3. CI/CD Missing Dependency</h3>
+                        <p>Build pipeline fails on missing package. Agent parses stack trace, patches Dockerfile layer & resumes CI.</p>
+                        <button class="btn btn-primary" onclick="runScenario('build_dependency_missing')">Trigger & Remediate</button>
+                    </div>
+                </div>
+
+                <div class="card scenario-card">
+                    <div class="scenario-icon">⚖️</div>
+                    <div class="scenario-content">
+                        <h3>4. IaC Configuration Drift</h3>
+                        <p>Cluster modified manually out-of-band (replicas dropped, unverified image tag). Agent detects drift & generates sync plan.</p>
+                        <button class="btn btn-secondary" onclick="runScenario('iac_drift')">Scan & Reconcile</button>
+                    </div>
+                </div>
+
+                <div class="card scenario-card">
+                    <div class="scenario-icon">🔄</div>
+                    <div class="scenario-content">
+                        <h3>5. Canary Breach & Rollback</h3>
+                        <p>Canary rollout generates 18% HTTP 500 error rate. Agent detects SLA breach and executes automated safe rollback.</p>
+                        <button class="btn btn-danger" onclick="runScenario('canary_regression')">Trigger & Rollback</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Workspace: Agent Logs & RCA Panel -->
+        <div class="workspace-grid">
+            <!-- Left: Real-time Agent Reasoning Stream -->
+            <section class="card panel">
+                <div class="panel-header">
+                    <h3>⚡ Real-Time Agent Activity & Telemetry</h3>
+                    <button class="btn-sm" onclick="refreshActivity()">Refresh</button>
+                </div>
+                <div class="terminal-log" id="activity-log">
+                    <div class="log-entry log-info"><span class="log-time">11:20:00</span> [INFO] DevOps Sentinel initialized. Monitoring cluster & CI/CD queues...</div>
+                    <div class="log-entry log-info"><span class="log-time">11:20:01</span> [INFO] Connected to Kubernetes provider and IaC manifest catalog.</div>
+                    <div class="log-entry log-info"><span class="log-time">11:20:02</span> [READY] Awaiting events or manual scenario trigger.</div>
+                </div>
+            </section>
+
+            <!-- Right: Remediation Diff & RCA Viewer -->
+            <section class="card panel">
+                <div class="panel-header">
+                    <h3>📄 Synthesized Patch & Post-Mortem RCA</h3>
+                    <div id="rca-actions" style="display: none;">
+                        <button class="btn-sm" onclick="copyRCA()">Copy Markdown</button>
+                    </div>
+                </div>
+                <div class="rca-container" id="rca-container">
+                    <div class="placeholder-text">
+                        Select and trigger any scenario above to view the agent's real-time diagnosis, synthesized git patch diff, and publication-ready Root Cause Analysis report.
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        DevOps Sentinel Agent &bull; Autonomous CI/CD Pipeline Automation & Cloud Infrastructure Remediation
+    </footer>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
