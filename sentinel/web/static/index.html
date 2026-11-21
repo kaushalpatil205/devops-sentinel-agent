@@ -50,6 +50,75 @@
             </div>
         </section>
 
+        <!-- Microservices Fleet Ecosystem -->
+        <section class="section">
+            <div class="section-header">
+                <h2>🌐 Connected Microservice Ecosystem (5 Services)</h2>
+                <button class="btn-sm" onclick="refreshFleetStatus()">Refresh Fleet</button>
+            </div>
+            <div class="scenarios-grid" id="fleet-grid">
+                <div class="card scenario-card" id="card-sentinel-core">
+                    <div class="scenario-icon">🧠</div>
+                    <div class="scenario-content">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <h3>DevOps Sentinel Core</h3>
+                            <span class="badge badge-success" id="badge-sentinel-core">ONLINE :8000</span>
+                        </div>
+                        <p>Master multi-agent orchestrator: Diagnoser, Remediator, Verifier, Drift Engine &amp; Post-Mortem RCA.</p>
+                        <div style="font-size:11px; color:#8b949e;">REST API + Web UI &bull; Port 8000</div>
+                    </div>
+                </div>
+
+                <div class="card scenario-card" id="card-telemetry-collector">
+                    <div class="scenario-icon">📡</div>
+                    <div class="scenario-content">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <h3>Telemetry Collector</h3>
+                            <span class="badge badge-info" id="badge-telemetry-collector">CHECKING :8001</span>
+                        </div>
+                        <p>Real-time Kubernetes event ingestion, Prometheus alert hooks &amp; probe anomaly streamer.</p>
+                        <div style="font-size:11px; color:#8b949e;">Event Forwarder &bull; Port 8001</div>
+                    </div>
+                </div>
+
+                <div class="card scenario-card" id="card-cicd-runner">
+                    <div class="scenario-icon">🚀</div>
+                    <div class="scenario-content">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <h3>CI/CD Pipeline Runner</h3>
+                            <span class="badge badge-info" id="badge-cicd-runner">CHECKING :8002</span>
+                        </div>
+                        <p>Multi-stage CI pipeline simulator (lint, test, build, deploy). Webhook dispatch &amp; hotfix re-runner.</p>
+                        <div style="font-size:11px; color:#8b949e;">Pipeline Engine &bull; Port 8002</div>
+                    </div>
+                </div>
+
+                <div class="card scenario-card" id="card-web-api">
+                    <div class="scenario-icon">💻</div>
+                    <div class="scenario-content">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <h3>Target: Web API</h3>
+                            <span class="badge badge-info" id="badge-web-api">CHECKING :8080</span>
+                        </div>
+                        <p>Production sample workload with live probes (/healthz, /ready), memory leak simulator &amp; metrics.</p>
+                        <div style="font-size:11px; color:#8b949e;">Containerized Service &bull; Port 8080</div>
+                    </div>
+                </div>
+
+                <div class="card scenario-card" id="card-order-service">
+                    <div class="scenario-icon">🛒</div>
+                    <div class="scenario-content">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <h3>Target: Order Service</h3>
+                            <span class="badge badge-info" id="badge-order-service">CHECKING :8081</span>
+                        </div>
+                        <p>E-commerce orders with canary traffic splitting, synthetic latency injection &amp; SLA rollback triggers.</p>
+                        <div style="font-size:11px; color:#8b949e;">Canary Workload &bull; Port 8081</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Scenario Control Panel -->
         <section class="section">
             <div class="section-header">

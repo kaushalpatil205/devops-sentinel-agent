@@ -129,6 +129,7 @@ def trigger_drift_scan():
     return {"drift_report": report.__dict__}
 
 @app.post("/api/incidents/trigger")
+@app.post("/api/incident/trigger")
 def trigger_manual_incident(req: TriggerIncidentRequest):
     res = orchestrator.handle_incident(
         resource_name=req.resource_name,
@@ -138,6 +139,81 @@ def trigger_manual_incident(req: TriggerIncidentRequest):
         extra_context=req.extra_context or {}
     )
     return res
+
+@app.get("/api/services/status")
+def get_services_status():
+    """Aggregates real-time health across all connected ecosystem microservices"""
+    import requests
+    services_info = {
+        "sentinel_core": {
+            "name": "DevOps Sentinel Core Agent",
+            "port": 8000,
+            "status": "ONLINE",
+            "role": "Autonomous Multi-Agent Orchestrator"
+        },
+        "telemetry_collector": {
+            "name": "Telemetry Collector Microservice",
+            "port": 8001,
+            "url": "http://localhost:8001",
+            "status": "UNKNOWN"
+        },
+        "cicd_runner": {
+            "name": "CI/CD Pipeline Runner Microservice",
+            "port": 8002,
+            "url": "http://localhost:8002",
+            "status": "UNKNOWN"
+        },
+        "web_api": {
+            "name": "Target Monitored Workload: Web API",
+            "port": 8080,
+            "url": "http://localhost:8080",
+            "status": "UNKNOWN"
+        },
+        "order_service": {
+            "name": "Target Monitored Workload: Order Service",
+            "port": 8081,
+            "url": "http://localhost:8081",
+            "status": "UNKNOWN"
+        }
+    }
+    
+    # Check satellite services if running
+    for key in ["telemetry_collector", "cicd_runner", "web_api", "order_service"]:
+        svc = services_info[key]
+        try:
+            r = requests.get(f"{svc['url']}/", timeout=0.8)
+            if r.status_code == 200:
+                svc["status"] = "ONLINE"
+                svc["details"] = r.json()
+            else:
+                svc["status"] = f"HTTP_{r.status_code}"
+        except Exception:
+            svc["status"] = "OFFLINE"
+            
+    return {"services": services_info}
+
+class ChaosTriggerRequest(BaseModel):
+    target: str  # "web-api", "order-service", "cicd-runner"
+    chaos_type: str  # "oom", "port_mismatch", "canary_spike", "broken_build"
+
+@app.post("/api/chaos/trigger")
+def trigger_chaos_experiment(req: ChaosTriggerRequest):
+    """
+    Triggers simulated faults directly on microservices and activates Sentinel healing.
+    """
+    orchestrator.log_activity(f"⚡ Injected chaos test '{req.chaos_type}' on target '{req.target}'", "WARNING")
+    
+    if req.target == "web-api" and req.chaos_type == "oom":
+        return simulator.run_scenario("oom_killed")
+    elif req.target == "web-api" and req.chaos_type == "port_mismatch":
+        return simulator.run_scenario("probe_port_mismatch")
+    elif req.target == "order-service" and req.chaos_type == "canary_spike":
+        return simulator.run_scenario("canary_regression")
+    elif req.target == "cicd-runner" and req.chaos_type == "broken_build":
+        return simulator.run_scenario("build_dependency_missing")
+    else:
+        # Default scenario execution
+        return simulator.run_scenario("oom_killed")
 
 @app.post("/api/webhook/github")
 def github_webhook(payload: GitHubWebhookPayload):

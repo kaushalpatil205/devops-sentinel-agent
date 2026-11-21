@@ -144,6 +144,34 @@ function escapeHtml(str) {
         .replace(/'/g, '&#039;');
 }
 
-// Auto-poll activity
+async function refreshFleetStatus() {
+    try {
+        const res = await fetch('/api/services/status');
+        const data = await res.json();
+        const svcs = data.services;
+
+        for (const [key, info] of Object.entries(svcs)) {
+            const badgeId = `badge-${key.replace('_', '-')}`;
+            const badge = document.getElementById(badgeId);
+            if (badge) {
+                if (info.status === 'ONLINE') {
+                    badge.className = 'badge badge-success';
+                    badge.innerText = `ONLINE :${info.port}`;
+                } else {
+                    badge.className = 'badge badge-secondary';
+                    badge.innerText = `STANDBY :${info.port}`;
+                }
+            }
+        }
+    } catch (e) {
+        console.error("Failed to load fleet status:", e);
+    }
+}
+
+// Auto-poll activity & fleet status
 setInterval(refreshActivity, 5000);
-window.onload = refreshActivity;
+setInterval(refreshFleetStatus, 8000);
+window.onload = () => {
+    refreshActivity();
+    refreshFleetStatus();
+};

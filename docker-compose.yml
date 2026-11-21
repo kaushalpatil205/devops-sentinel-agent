@@ -1,11 +1,12 @@
 version: '3.8'
 
 services:
-  devops-sentinel:
+  # 1. Master Autonomous Multi-Agent Core & Dashboard
+  sentinel-core:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: devops-sentinel-agent
+    container_name: devops-sentinel-core
     ports:
       - "8000:8000"
     environment:
@@ -15,4 +16,75 @@ services:
       - SENTINEL_PORT=8000
     volumes:
       - ./manifests:/app/manifests
+    networks:
+      - sentinel-net
     restart: unless-stopped
+
+  # 2. Observability & Telemetry Ingestion Collector
+  telemetry-collector:
+    build:
+      context: ./services/telemetry_collector
+      dockerfile: Dockerfile
+    container_name: sentinel-telemetry-collector
+    ports:
+      - "8001:8001"
+    environment:
+      - PORT=8001
+      - SENTINEL_CORE_URL=http://sentinel-core:8000
+      - WEB_API_URL=http://web-api:8080
+      - ORDER_SERVICE_URL=http://order-service:8081
+      - POLL_INTERVAL_SECONDS=5
+    depends_on:
+      - sentinel-core
+    networks:
+      - sentinel-net
+    restart: unless-stopped
+
+  # 3. CI/CD Pipeline Execution Engine
+  cicd-runner:
+    build:
+      context: ./services/cicd_runner
+      dockerfile: Dockerfile
+    container_name: sentinel-cicd-runner
+    ports:
+      - "8002:8002"
+    environment:
+      - PORT=8002
+      - SENTINEL_CORE_URL=http://sentinel-core:8000
+    depends_on:
+      - sentinel-core
+    networks:
+      - sentinel-net
+    restart: unless-stopped
+
+  # 4. Target Monitored Workload: Web API
+  web-api:
+    build:
+      context: ./services/web_api
+      dockerfile: Dockerfile
+    container_name: sentinel-target-web-api
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+    networks:
+      - sentinel-net
+    restart: unless-stopped
+
+  # 5. Target Monitored Workload: Order Processing (Canary)
+  order-service:
+    build:
+      context: ./services/order_service
+      dockerfile: Dockerfile
+    container_name: sentinel-target-order-service
+    ports:
+      - "8081:8081"
+    environment:
+      - PORT=8081
+    networks:
+      - sentinel-net
+    restart: unless-stopped
+
+networks:
+  sentinel-net:
+    driver: bridge
