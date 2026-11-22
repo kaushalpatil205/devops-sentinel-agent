@@ -7,7 +7,6 @@
 [![Kubernetes](https://img.shields.io/badge/kubernetes-v1.28+-blue.svg)](https://kubernetes.io)
 [![Tests Passing](https://img.shields.io/badge/tests-25%20passed-brightgreen.svg)]()
 [![Microservices](https://img.shields.io/badge/microservices-5%20services-purple.svg)]()
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ---
 
@@ -247,8 +246,3 @@ devops-sentinel-agent/
     ├── test_remediator.py
     └── test_verifier.py
 ```
-
----
-
-## 📜 License
-MIT License. Built for autonomous cloud operations and SRE efficiency.
